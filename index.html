@@ -4,423 +4,282 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="theme-color" content="#2a1f14"/>
-  <meta name="description" content="Buscador de recetas fáciles"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="apple-mobile-web-app-title" content="Recetas"/>
   <link rel="manifest" href="manifest.json"/>
-  <link rel="apple-touch-icon" href="icons/icon-192.png"/>
   <title>Recetas Fáciles</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, -apple-system, sans-serif; background: #faf7f2; color: #1c1410; min-height: 100vh; }
-    header { background: #2a1f14; padding: 36px 20px 30px; }
-    .inner { max-width: 860px; margin: 0 auto; }
-    .eyebrow { color: #d4a96a; font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; margin-bottom: 6px; }
-    h1 { font-family: 'DM Serif Display', Georgia, serif; font-weight: 400; font-size: clamp(24px,6vw,38px); color: #fdf6ec; line-height: 1.15; margin-bottom: 8px; }
-    header p { color: #a8917a; font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
-    .search-row { display: flex; gap: 10px; max-width: 560px; }
+
+    header { background: #2a1f14; padding: 32px 20px 28px; }
+    .inner { max-width: 700px; margin: 0 auto; }
+    header h1 { color: #fdf6ec; font-size: clamp(22px, 5vw, 32px); font-weight: 700; margin-bottom: 6px; }
+    header p { color: #a8917a; font-size: 14px; margin-bottom: 20px; }
+
+    .search-row { display: flex; gap: 8px; }
     .search-box { flex: 1; display: flex; align-items: center; background: #fdf6ec; border-radius: 12px; border: 2px solid transparent; padding: 0 14px; transition: border-color .2s; }
     .search-box:focus-within { border-color: #d4a96a; }
-    .search-box svg { color: #b5a090; flex-shrink: 0; margin-right: 10px; }
     .search-box input { flex: 1; background: transparent; border: none; font-size: 16px; color: #1c1410; padding: 13px 0; font-family: inherit; outline: none; }
-    .btn-clear { background: none; border: none; cursor: pointer; color: #b5a090; font-size: 18px; padding: 0 0 0 6px; line-height: 1; display: none; }
-    .btn-search { background: #d4a96a; border: none; border-radius: 12px; padding: 0 20px; color: #2a1f14; font-weight: 700; font-size: 15px; cursor: pointer; font-family: inherit; white-space: nowrap; min-height: 48px; transition: opacity .2s; }
-    .btn-search:disabled { opacity: .45; cursor: default; }
-    .chips { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    .chips span { color: #6b5e50; font-size: 12px; }
-    .chip { background: rgba(255,255,255,.08); border: 1px solid rgba(212,169,106,.3); border-radius: 20px; padding: 4px 13px; color: #d4a96a; font-size: 13px; cursor: pointer; font-family: inherit; transition: background .15s; }
-    .chip:hover { background: rgba(212,169,106,.18); }
-    main { max-width: 860px; margin: 0 auto; padding: 28px 20px 60px; }
-    .state { text-align: center; padding: 60px 20px; }
-    .state .emoji { font-size: 52px; margin-bottom: 14px; }
-    .state h2 { font-family: 'DM Serif Display', Georgia, serif; font-weight: 400; font-size: 22px; color: #3d2f22; margin-bottom: 8px; }
-    .state p { font-size: 14.5px; color: #8b7355; line-height: 1.6; }
-    .spinner { width: 38px; height: 38px; border: 3px solid #e8e2d9; border-top-color: #d4a96a; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 16px; }
-    .alert { background: #fff0f0; border: 1.5px solid #f5c6c6; border-radius: 12px; padding: 16px 20px; color: #c0392b; font-size: 14px; }
-    .results-header { font-size: 14px; color: #8b7355; margin-bottom: 18px; }
-    .results-header strong { color: #3d2f22; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 18px; }
-    .card { background: #fff; border-radius: 16px; overflow: hidden; cursor: pointer; border: 1.5px solid #e8e2d9; transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s; display: flex; flex-direction: column; }
-    .card:hover, .card:focus { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(0,0,0,.13); outline: none; border-color: #d4a96a; }
-    .card-img { position: relative; height: 185px; overflow: hidden; background: #e8e2d9; flex-shrink: 0; }
-    .card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; display: block; }
-    .card:hover .card-img img, .card:focus .card-img img { transform: scale(1.06); }
-    .card-overlay { position: absolute; inset: 0; background: linear-gradient(to top,rgba(0,0,0,.55) 0%,transparent 55%); }
-    .card-cat { position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,.92); backdrop-filter: blur(6px); border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 700; color: #2a1f14; }
-    .card-img h2 { position: absolute; bottom: 10px; left: 12px; right: 12px; color: #fff; font-size: 16px; font-family: 'DM Serif Display', Georgia, serif; font-weight: 400; line-height: 1.25; text-shadow: 0 1px 6px rgba(0,0,0,.6); }
-    .card-body { padding: 12px 14px 14px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
-    .card-area { font-size: 12px; color: #b5a090; }
-    .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
-    .badge-area { font-size: 11px; font-weight: 700; background: #fdf6ec; color: #8b6a3e; padding: 3px 10px; border-radius: 20px; }
-    .see-more { font-size: 13px; color: #d4a96a; font-weight: 600; }
-    .btn-reload { margin-top: 22px; width: 100%; padding: 13px; background: transparent; border: 1.5px solid #d4a96a; border-radius: 12px; color: #8b6a3e; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background .15s; }
-    .btn-reload:hover { background: #fdf6ec; }
+    .btn-search { background: #d4a96a; border: none; border-radius: 12px; padding: 0 20px; color: #2a1f14; font-weight: 700; font-size: 15px; cursor: pointer; min-height: 48px; white-space: nowrap; }
+    .btn-search:disabled { opacity: .4; cursor: default; }
+
+    .chips { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip { background: rgba(255,255,255,.08); border: 1px solid rgba(212,169,106,.35); border-radius: 20px; padding: 5px 13px; color: #d4a96a; font-size: 13px; cursor: pointer; font-family: inherit; }
+    .chip:hover { background: rgba(212,169,106,.15); }
+
+    main { max-width: 700px; margin: 0 auto; padding: 28px 20px 60px; }
+
+    .estado { text-align: center; padding: 60px 20px; }
+    .estado .icono { font-size: 50px; margin-bottom: 14px; }
+    .estado h2 { font-size: 20px; color: #3d2f22; margin-bottom: 8px; font-weight: 600; }
+    .estado p { font-size: 14px; color: #8b7355; line-height: 1.6; }
+    .spinner { width: 36px; height: 36px; border: 3px solid #e8e2d9; border-top-color: #d4a96a; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 14px; }
+
+    .lista { display: flex; flex-direction: column; gap: 14px; }
+    .tarjeta { background: #fff; border-radius: 14px; overflow: hidden; cursor: pointer; border: 1.5px solid #e8e2d9; display: flex; gap: 0; transition: box-shadow .2s, border-color .2s; }
+    .tarjeta:hover, .tarjeta:focus { box-shadow: 0 6px 24px rgba(0,0,0,.1); border-color: #d4a96a; outline: none; }
+    .tarjeta img { width: 110px; height: 110px; object-fit: cover; flex-shrink: 0; }
+    .tarjeta-info { padding: 14px 16px; flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+    .tarjeta-info h3 { font-size: 16px; font-weight: 700; color: #1c1410; line-height: 1.3; }
+    .tarjeta-info .meta { font-size: 12px; color: #b5a090; }
+    .tarjeta-info .ver { font-size: 13px; color: #d4a96a; font-weight: 600; margin-top: 4px; }
+
     /* Modal */
-    .modal-backdrop { position: fixed; inset: 0; background: rgba(10,6,2,.82); backdrop-filter: blur(10px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; animation: fadeIn .18s; }
-    .modal { background: #fffdf9; border-radius: 20px; overflow: hidden; max-width: 660px; width: 100%; max-height: 92vh; overflow-y: auto; box-shadow: 0 50px 100px rgba(0,0,0,.45); animation: slideUp .28s cubic-bezier(.34,1.56,.64,1); }
-    .modal-hero { position: relative; height: 260px; background: #e8e2d9; }
-    .modal-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top,rgba(0,0,0,.82) 0%,transparent 55%); }
-    .btn-close { position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,.9); border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,.2); }
-    .modal-title { position: absolute; bottom: 18px; left: 18px; right: 18px; }
-    .modal-title h2 { color: #fff; font-size: 22px; font-family: 'DM Serif Display', Georgia, serif; font-weight: 400; margin-bottom: 4px; }
-    .modal-title .meta { color: rgba(255,255,255,.7); font-size: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
-    .modal-title .meta span { background: rgba(255,255,255,.15); padding: 2px 9px; border-radius: 20px; }
-    .tabs { display: flex; border-bottom: 2px solid #f0ece5; }
-    .tab { flex: 1; padding: 13px 6px; border: none; background: #faf7f2; border-bottom: 2.5px solid transparent; margin-bottom: -2px; cursor: pointer; color: #b5a090; font-family: inherit; font-weight: 700; font-size: 12px; transition: all .18s; }
-    .tab.active { background: #fff; border-bottom-color: #d4a96a; color: #2a1f14; }
-    .tab-content { padding: 20px 22px 26px; }
-    .ing-list { list-style: none; }
-    .ing-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 12px; margin-bottom: 6px; border-radius: 10px; border: 1px solid #f0ece5; }
-    .ing-item:nth-child(odd) { background: #faf7f2; }
-    .ing-check { width: 20px; height: 20px; border-radius: 50%; background: #d4a96a; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #2a1f14; flex-shrink: 0; margin-top: 1px; }
-    .ing-text { font-size: 14px; color: #3d2f22; line-height: 1.5; }
-    .steps-list { list-style: none; }
-    .step { display: flex; gap: 12px; margin-bottom: 14px; }
-    .step-num { min-width: 32px; height: 32px; border-radius: 50%; background: #2a1f14; color: #d4a96a; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
-    .step-box { background: #faf7f2; border-radius: 12px; padding: 12px 14px; flex: 1; border: 1px solid #f0ece5; font-size: 14px; color: #3d2f22; line-height: 1.7; }
-    .yt-link { display: flex; align-items: center; gap: 10px; background: #fff0f0; border: 1.5px solid #ffcccc; border-radius: 12px; padding: 14px 16px; color: #c0392b; font-weight: 600; font-size: 14px; text-decoration: none; margin-top: 4px; transition: background .15s; }
-    .yt-link:hover { background: #ffe8e8; }
-    #offline-banner { display: none; background: #f0a05a; color: #2a1f14; text-align: center; padding: 8px; font-size: 13px; font-weight: 600; }
+    .fondo-modal { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 100; display: flex; align-items: flex-end; justify-content: center; padding: 0; animation: fadeIn .2s; }
+    @media (min-width: 600px) { .fondo-modal { align-items: center; padding: 20px; } }
+    .modal { background: #fff; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; border-radius: 20px 20px 0 0; }
+    @media (min-width: 600px) { .modal { border-radius: 20px; } }
+    .modal-foto { position: relative; height: 220px; background: #e8e2d9; }
+    .modal-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .modal-foto::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.7) 0%, transparent 50%); }
+    .modal-titulo { position: absolute; bottom: 0; left: 0; right: 0; padding: 16px; z-index: 1; }
+    .modal-titulo h2 { color: #fff; font-size: 20px; font-weight: 700; line-height: 1.25; margin-bottom: 4px; }
+    .modal-titulo .badges { display: flex; gap: 6px; flex-wrap: wrap; }
+    .badge { background: rgba(255,255,255,.2); color: #fff; font-size: 11px; padding: 2px 10px; border-radius: 20px; }
+    .btn-cerrar { position: absolute; top: 12px; right: 12px; z-index: 2; background: rgba(255,255,255,.9); border: none; border-radius: 50%; width: 34px; height: 34px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .modal-cuerpo { padding: 20px; }
+    .seccion-titulo { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #8b7355; margin-bottom: 12px; }
+    .ing-lista { list-style: none; margin-bottom: 24px; }
+    .ing-lista li { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid #f0ece5; font-size: 14px; color: #3d2f22; line-height: 1.5; }
+    .ing-lista li::before { content: "✓"; width: 18px; height: 18px; border-radius: 50%; background: #d4a96a; color: #2a1f14; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+    .pasos-lista { list-style: none; }
+    .paso { display: flex; gap: 12px; margin-bottom: 14px; }
+    .paso-num { min-width: 30px; height: 30px; border-radius: 50%; background: #2a1f14; color: #d4a96a; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+    .paso-texto { background: #faf7f2; border-radius: 10px; padding: 10px 14px; flex: 1; font-size: 14px; color: #3d2f22; line-height: 1.65; border: 1px solid #f0ece5; }
+    .yt-btn { display: flex; align-items: center; gap: 8px; background: #fff0f0; border: 1.5px solid #ffc0c0; border-radius: 10px; padding: 12px 16px; color: #c0392b; font-weight: 600; font-size: 14px; text-decoration: none; margin-top: 16px; }
+
     @keyframes spin    { to { transform: rotate(360deg); } }
     @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes slideUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
-    @keyframes appear  { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
-    .appear { animation: appear .3s ease both; }
-    button:focus-visible, input:focus-visible { outline: 3px solid #d4a96a; outline-offset: 3px; }
+    button:focus-visible, input:focus-visible { outline: 3px solid #d4a96a; outline-offset: 2px; }
   </style>
 </head>
 <body>
 
-<div id="offline-banner">Sin conexion - las recetas pueden no cargar</div>
-
 <header>
   <div class="inner">
-    <p class="eyebrow">Buscador de recetas</p>
-    <h1>Que queres cocinar hoy?</h1>
-    <p>Busca por ingrediente o nombre del plato. Miles de recetas reales con fotos.</p>
+    <h1>🍳 Recetas Fáciles</h1>
+    <p>Buscá por ingrediente o nombre del plato</p>
     <div class="search-row">
       <div class="search-box">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input id="search-input" type="search" placeholder="pollo, pasta, chocolate..." aria-label="Buscar recetas" autocomplete="off" enterkeyhint="search"/>
-        <button class="btn-clear" id="btn-clear" aria-label="Borrar busqueda">&#x2715;</button>
+        <input id="inp" type="search" placeholder="pollo, pasta, chocolate..." aria-label="Buscar recetas" autocomplete="off" enterkeyhint="search"/>
       </div>
-      <button class="btn-search" id="btn-search" disabled>Buscar</button>
+      <button class="btn-search" id="btnBuscar" disabled>Buscar</button>
     </div>
     <div class="chips">
-      <span>Probar:</span>
-      <button class="chip" data-q="chicken">Pollo</button>
-      <button class="chip" data-q="pasta">Pasta</button>
-      <button class="chip" data-q="beef">Carne</button>
-      <button class="chip" data-q="salmon">Salmon</button>
-      <button class="chip" data-q="vegetarian">Vegetariano</button>
-      <button class="chip" data-q="chocolate">Chocolate</button>
-      <button class="chip" data-q="rice">Arroz</button>
-      <button class="chip" data-q="egg">Huevos</button>
+      <button class="chip" data-q="chicken">🍗 Pollo</button>
+      <button class="chip" data-q="pasta">🍝 Pasta</button>
+      <button class="chip" data-q="beef">🥩 Carne</button>
+      <button class="chip" data-q="salmon">🐟 Salmón</button>
+      <button class="chip" data-q="egg">🥚 Huevos</button>
+      <button class="chip" data-q="chocolate">🍫 Chocolate</button>
+      <button class="chip" data-q="rice">🍚 Arroz</button>
+      <button class="chip" data-q="vegetarian">🥗 Vegetariano</button>
     </div>
   </div>
 </header>
 
 <main id="main">
-  <div class="state">
-    <div class="emoji">&#129370;</div>
-    <h2>Que queres cocinar hoy?</h2>
-    <p>Escribi un ingrediente arriba o elegi una sugerencia para empezar.</p>
+  <div class="estado">
+    <div class="icono">🥘</div>
+    <h2>¿Qué querés cocinar hoy?</h2>
+    <p>Escribí un ingrediente arriba o elegí una sugerencia para empezar.</p>
   </div>
 </main>
 
 <!-- Modal -->
-<div class="modal-backdrop" id="modal" style="display:none" role="dialog" aria-modal="true" aria-label="Detalle de receta">
-  <div class="modal" id="modal-inner">
-    <div class="modal-hero">
-      <img id="modal-img" src="" alt=""/>
-      <div class="hero-overlay"></div>
-      <button class="btn-close" id="modal-close" aria-label="Cerrar">&#x2715;</button>
-      <div class="modal-title">
-        <h2 id="modal-name"></h2>
-        <div class="meta" id="modal-meta"></div>
-      </div>
-    </div>
-    <div class="tabs">
-      <button class="tab active" data-tab="ing">&#129379; Ingredientes</button>
-      <button class="tab" data-tab="pasos">&#128203; Preparacion</button>
-    </div>
-    <div class="tab-content" id="tab-content"></div>
-  </div>
-</div>
+<div id="modal" style="display:none" role="dialog" aria-modal="true"></div>
 
 <script>
-// ── TheMealDB API — completamente gratis ──────────────────────────────────
 var API = "https://www.themealdb.com/api/json/v1/1";
 
-async function searchMeals(q) {
-  var res = await fetch(API + "/search.php?s=" + encodeURIComponent(q));
-  var data = await res.json();
-  return data.meals || [];
+// Traducciones básicas de categorías y zonas
+var CATS = {
+  "Beef":"Carne","Chicken":"Pollo","Dessert":"Postre","Lamb":"Cordero",
+  "Miscellaneous":"Varios","Pasta":"Pasta","Pork":"Cerdo","Seafood":"Mariscos",
+  "Side":"Guarnición","Starter":"Entrada","Vegan":"Vegano","Vegetarian":"Vegetariano",
+  "Breakfast":"Desayuno","Goat":"Cabrito"
+};
+var AREAS = {
+  "American":"Americana","British":"Británica","Canadian":"Canadiense",
+  "Chinese":"China","Croatian":"Croata","Dutch":"Holandesa","Egyptian":"Egipcia",
+  "French":"Francesa","Greek":"Griega","Indian":"India","Irish":"Irlandesa",
+  "Italian":"Italiana","Jamaican":"Jamaiquina","Japanese":"Japonesa","Kenyan":"Keniana",
+  "Malaysian":"Malaya","Mexican":"Mexicana","Moroccan":"Marroquí","Polish":"Polaca",
+  "Portuguese":"Portuguesa","Russian":"Rusa","Spanish":"Española","Thai":"Tailandesa",
+  "Tunisian":"Tunecina","Turkish":"Turca","Vietnamese":"Vietnamita","Unknown":"Desconocida"
+};
+
+function tCat(s) { return CATS[s] || s; }
+function tArea(s) { return AREAS[s] || s; }
+
+function esc(s) {
+  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
-async function getMeal(id) {
-  var res = await fetch(API + "/lookup.php?i=" + id);
-  var data = await res.json();
-  return data.meals ? data.meals[0] : null;
-}
+// Cache
+function gc(k) { try { var d=JSON.parse(localStorage.getItem("r_"+k)); return d&&d.t>Date.now()-21600000?d.v:null; } catch(e){return null;} }
+function sc(k,v) { try { localStorage.setItem("r_"+k,JSON.stringify({t:Date.now(),v:v})); } catch(e){} }
 
-function getIngredients(meal) {
-  var list = [];
-  for (var i = 1; i <= 20; i++) {
-    var ing = meal["strIngredient" + i];
-    var measure = meal["strMeasure" + i];
-    if (ing && ing.trim()) {
-      list.push((measure ? measure.trim() + " " : "") + ing.trim());
-    }
-  }
-  return list;
-}
-
-function getSteps(meal) {
-  if (!meal.strInstructions) return [];
-  return meal.strInstructions
-    .split(/\r?\n/)
-    .map(function(s) { return s.trim(); })
-    .filter(function(s) { return s.length > 10; });
-}
-
-function escHTML(s) {
-  return String(s || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-// ── Cache ─────────────────────────────────────────────────────────────────
-function getCache(k) {
-  try { var d = JSON.parse(localStorage.getItem("mc_"+k)); return d && d.ts > Date.now()-3600000*6 ? d.v : null; } catch(e) { return null; }
-}
-function setCache(k, v) {
-  try { localStorage.setItem("mc_"+k, JSON.stringify({ts:Date.now(),v:v})); } catch(e) {}
-}
-
-// ── State ─────────────────────────────────────────────────────────────────
-var currentMeals = [];
-var currentQuery = "";
-var activeTab = "ing";
-var activeMeal = null;
-
-// ── Elements ──────────────────────────────────────────────────────────────
-var inputEl   = document.getElementById("search-input");
-var btnSearch = document.getElementById("btn-search");
-var btnClear  = document.getElementById("btn-clear");
+var inp       = document.getElementById("inp");
+var btnBuscar = document.getElementById("btnBuscar");
 var mainEl    = document.getElementById("main");
 var modalEl   = document.getElementById("modal");
-var modalClose = document.getElementById("modal-close");
+var recetas   = [];
+var query     = "";
 
-inputEl.addEventListener("input", function() {
-  var v = inputEl.value.trim();
-  btnSearch.disabled = !v;
-  btnClear.style.display = v ? "inline" : "none";
-});
-inputEl.addEventListener("keydown", function(e) { if (e.key === "Enter") doSearch(); });
-btnSearch.addEventListener("click", doSearch);
-btnClear.addEventListener("click", function() {
-  inputEl.value = "";
-  btnSearch.disabled = true;
-  btnClear.style.display = "none";
-  inputEl.focus();
-});
+inp.addEventListener("input", function() { btnBuscar.disabled = !inp.value.trim(); });
+inp.addEventListener("keydown", function(e) { if (e.key==="Enter") buscar(); });
+btnBuscar.addEventListener("click", buscar);
+
 document.querySelectorAll(".chip").forEach(function(c) {
-  c.addEventListener("click", function() {
-    inputEl.value = c.dataset.q;
-    btnSearch.disabled = false;
-    doSearch();
-  });
+  c.addEventListener("click", function() { inp.value=c.dataset.q; btnBuscar.disabled=false; buscar(); });
 });
 
-async function doSearch() {
-  var q = inputEl.value.trim();
+async function buscar() {
+  var q = inp.value.trim();
   if (!q) return;
-  currentQuery = q;
-  btnSearch.disabled = true;
-  btnSearch.textContent = "Buscando...";
-  renderLoading(q);
+  query = q;
+  btnBuscar.disabled = true;
+  btnBuscar.textContent = "Buscando...";
+  mainEl.innerHTML = '<div class="estado"><div class="spinner"></div><p style="color:#8b7355">Buscando <strong>'+esc(q)+'</strong>...</p></div>';
 
-  var cached = getCache(q);
-  if (cached) {
-    currentMeals = cached;
-    renderResults();
-    btnSearch.disabled = false;
-    btnSearch.textContent = "Buscar";
-    return;
-  }
+  var cached = gc(q);
+  if (cached) { recetas=cached; mostrarResultados(); btnBuscar.disabled=false; btnBuscar.textContent="Buscar"; return; }
 
   try {
-    var meals = await searchMeals(q);
-    currentMeals = meals;
-    setCache(q, meals);
-    renderResults();
+    var res = await fetch(API+"/search.php?s="+encodeURIComponent(q));
+    var data = await res.json();
+    recetas = data.meals || [];
+    sc(q, recetas);
+    mostrarResultados();
   } catch(e) {
-    renderError();
+    mainEl.innerHTML = '<div class="estado"><div class="icono">😕</div><h2>Sin conexión</h2><p>Revisá tu conexión e intentá de nuevo.</p></div>';
   }
-  btnSearch.disabled = false;
-  btnSearch.textContent = "Buscar";
+  btnBuscar.disabled = false;
+  btnBuscar.textContent = "Buscar";
 }
 
-function renderLoading(q) {
-  mainEl.innerHTML =
-    '<div class="state" role="status" aria-live="polite">' +
-    '<div class="spinner"></div>' +
-    '<p style="color:#8b7355;font-size:15px">Buscando <strong>' + escHTML(q) + '</strong>...</p>' +
-    '</div>';
-}
-
-function renderError() {
-  mainEl.innerHTML = '<div class="alert" role="alert">No se pudo conectar. Revisa tu conexion e intenta de nuevo.</div>';
-}
-
-function renderResults() {
-  var meals = currentMeals;
-  if (!meals || meals.length === 0) {
-    mainEl.innerHTML =
-      '<div class="state">' +
-      '<div class="emoji">&#128269;</div>' +
-      '<h2>Sin resultados</h2>' +
-      '<p>No encontramos recetas para "' + escHTML(currentQuery) + '". Proba con otro termino.</p>' +
-      '</div>';
+function mostrarResultados() {
+  if (!recetas.length) {
+    mainEl.innerHTML = '<div class="estado"><div class="icono">🔍</div><h2>Sin resultados</h2><p>No encontramos recetas para "'+esc(query)+'". Probá con otro término.</p></div>';
     return;
   }
-
-  mainEl.innerHTML =
-    '<p class="results-header"><strong>' + meals.length + ' recetas</strong> encontradas para "' + escHTML(currentQuery) + '" &mdash; toca una para ver los detalles</p>' +
-    '<div class="grid" id="grid"></div>';
-
-  var grid = document.getElementById("grid");
-  meals.forEach(function(meal, i) {
-    var card = document.createElement("article");
-    card.className = "card appear";
-    card.style.animationDelay = (Math.min(i, 12) * 0.05) + "s";
-    card.tabIndex = 0;
-    card.setAttribute("role", "button");
-    card.setAttribute("aria-label", "Ver receta: " + meal.strMeal);
-    card.innerHTML =
-      '<div class="card-img">' +
-        '<img src="' + escHTML(meal.strMealThumb) + '/preview" alt="' + escHTML(meal.strMeal) + '" loading="lazy"/>' +
-        '<div class="card-overlay"></div>' +
-        (meal.strCategory ? '<div class="card-cat">' + escHTML(meal.strCategory) + '</div>' : '') +
-        '<h2>' + escHTML(meal.strMeal) + '</h2>' +
-      '</div>' +
-      '<div class="card-body">' +
-        '<div class="card-area">' + (meal.strArea ? '&#127757; ' + escHTML(meal.strArea) : '') + '</div>' +
-        '<div class="card-footer">' +
-          '<span class="see-more">Ver receta &rarr;</span>' +
-          (meal.strCategory ? '<span class="badge-area">' + escHTML(meal.strCategory) + '</span>' : '') +
+  var html = '<p style="font-size:14px;color:#8b7355;margin-bottom:16px"><strong style="color:#3d2f22">'+recetas.length+' recetas</strong> encontradas — tocá una para ver los detalles</p><div class="lista">';
+  recetas.forEach(function(r, i) {
+    html +=
+      '<article class="tarjeta" tabindex="0" role="button" aria-label="Ver receta: '+esc(r.strMeal)+'" data-i="'+i+'">' +
+        '<img src="'+esc(r.strMealThumb)+'/preview" alt="'+esc(r.strMeal)+'" loading="lazy" onerror="this.style.display=\'none\'"/>' +
+        '<div class="tarjeta-info">' +
+          '<h3>'+esc(r.strMeal)+'</h3>' +
+          '<div class="meta">'+
+            (r.strCategory?'📂 '+tCat(r.strCategory):'') +
+            (r.strArea?' &nbsp;·&nbsp; 🌍 '+tArea(r.strArea):'') +
+          '</div>' +
+          '<div class="ver">Ver receta →</div>' +
         '</div>' +
-      '</div>';
-    card.addEventListener("click", function() { openModal(meal); });
-    card.addEventListener("keydown", function(e) { if (e.key === "Enter" || e.key === " ") openModal(meal); });
-    grid.appendChild(card);
+      '</article>';
+  });
+  html += '</div>';
+  mainEl.innerHTML = html;
+  mainEl.querySelectorAll(".tarjeta").forEach(function(el) {
+    el.addEventListener("click", function() { abrirModal(recetas[+el.dataset.i]); });
+    el.addEventListener("keydown", function(e) { if (e.key==="Enter"||e.key===" ") abrirModal(recetas[+el.dataset.i]); });
   });
 }
 
 // ── Modal ─────────────────────────────────────────────────────────────────
-async function openModal(meal) {
-  activeMeal = meal;
-  activeTab = "ing";
-
-  document.getElementById("modal-img").src = meal.strMealThumb || "";
-  document.getElementById("modal-img").alt = meal.strMeal;
-  document.getElementById("modal-name").textContent = meal.strMeal;
-
-  var meta = [];
-  if (meal.strCategory) meta.push(meal.strCategory);
-  if (meal.strArea) meta.push(meal.strArea);
-  document.getElementById("modal-meta").innerHTML = meta.map(function(m) {
-    return '<span>' + escHTML(m) + '</span>';
-  }).join("");
-
-  document.querySelectorAll(".tab").forEach(function(t) {
-    t.classList.toggle("active", t.dataset.tab === "ing");
-  });
-
+async function abrirModal(r) {
   modalEl.style.display = "flex";
   document.body.style.overflow = "hidden";
-  document.getElementById("modal-close").focus();
 
   // Si no tiene instrucciones completas, buscamos el detalle
-  if (!meal.strInstructions) {
-    document.getElementById("tab-content").innerHTML =
-      '<div style="text-align:center;padding:30px"><div class="spinner"></div></div>';
+  if (!r.strInstructions) {
     try {
-      var full = await getMeal(meal.idMeal);
-      if (full) activeMeal = full;
+      var res = await fetch(API+"/lookup.php?i="+r.idMeal);
+      var data = await res.json();
+      if (data.meals) r = data.meals[0];
     } catch(e) {}
   }
-  renderModalTab("ing");
+
+  var ings = [];
+  for (var i=1;i<=20;i++) {
+    var ing=r["strIngredient"+i], med=r["strMeasure"+i];
+    if (ing&&ing.trim()) ings.push((med?med.trim()+" ":"")+ing.trim());
+  }
+
+  var pasos = [];
+  if (r.strInstructions) {
+    pasos = r.strInstructions.split(/\r?\n/).map(function(s){return s.trim();}).filter(function(s){return s.length>10;});
+  }
+
+  var html =
+    '<div class="fondo-modal" id="fondo">'+
+    '<div class="modal">'+
+      '<div class="modal-foto">'+
+        '<img src="'+esc(r.strMealThumb)+'" alt="'+esc(r.strMeal)+'" loading="lazy"/>'+
+        '<div class="modal-titulo">'+
+          '<h2>'+esc(r.strMeal)+'</h2>'+
+          '<div class="badges">'+
+            (r.strCategory?'<span class="badge">'+tCat(r.strCategory)+'</span>':'')+
+            (r.strArea?'<span class="badge">'+tArea(r.strArea)+'</span>':'')+
+          '</div>'+
+        '</div>'+
+        '<button class="btn-cerrar" id="btnCerrar" aria-label="Cerrar">✕</button>'+
+      '</div>'+
+      '<div class="modal-cuerpo">'+
+        '<p class="seccion-titulo">🧂 Ingredientes</p>'+
+        '<ul class="ing-lista">'+
+          ings.map(function(ing){return '<li>'+esc(ing)+'</li>';}).join("")+
+        '</ul>'+
+        (pasos.length?
+          '<p class="seccion-titulo">📋 Preparación</p>'+
+          '<ol class="pasos-lista">'+
+            pasos.map(function(p,i){return '<li class="paso"><div class="paso-num">'+(i+1)+'</div><div class="paso-texto">'+esc(p)+'</div></li>';}).join("")+
+          '</ol>':
+          '<p style="color:#8b7355;font-size:14px">Instrucciones no disponibles en texto.</p>'
+        )+
+        (r.strYoutube?'<a href="'+esc(r.strYoutube)+'" target="_blank" rel="noopener" class="yt-btn">▶ Ver en YouTube</a>':'')+
+      '</div>'+
+    '</div>'+
+    '</div>';
+
+  modalEl.innerHTML = html;
+
+  document.getElementById("btnCerrar").addEventListener("click", cerrarModal);
+  document.getElementById("fondo").addEventListener("click", function(e) { if (e.target===this) cerrarModal(); });
+  document.getElementById("btnCerrar").focus();
 }
 
-modalClose.addEventListener("click", closeModal);
-modalEl.addEventListener("click", function(e) { if (e.target === modalEl) closeModal(); });
-document.addEventListener("keydown", function(e) { if (e.key === "Escape") closeModal(); });
-
-function closeModal() {
+function cerrarModal() {
   modalEl.style.display = "none";
+  modalEl.innerHTML = "";
   document.body.style.overflow = "";
 }
 
-document.querySelectorAll(".tab").forEach(function(btn) {
-  btn.addEventListener("click", function() {
-    activeTab = btn.dataset.tab;
-    document.querySelectorAll(".tab").forEach(function(t) {
-      t.classList.toggle("active", t === btn);
-    });
-    renderModalTab(activeTab);
-  });
-});
+document.addEventListener("keydown", function(e) { if (e.key==="Escape") cerrarModal(); });
 
-function renderModalTab(tab) {
-  var meal = activeMeal;
-  var el = document.getElementById("tab-content");
-
-  if (tab === "ing") {
-    var ings = getIngredients(meal);
-    if (ings.length === 0) {
-      el.innerHTML = '<p style="color:#8b7355;font-size:14px">No hay ingredientes disponibles.</p>';
-      return;
-    }
-    el.innerHTML = '<ul class="ing-list">' +
-      ings.map(function(ing) {
-        return '<li class="ing-item"><div class="ing-check">&#10003;</div><div class="ing-text">' + escHTML(ing) + '</div></li>';
-      }).join("") +
-      '</ul>';
-  } else {
-    var steps = getSteps(meal);
-    var html = "";
-    if (steps.length > 0) {
-      html += '<ol class="steps-list">' +
-        steps.map(function(step, i) {
-          return '<li class="step"><div class="step-num">' + (i+1) + '</div><div class="step-box">' + escHTML(step) + '</div></li>';
-        }).join("") +
-        '</ol>';
-    } else {
-      html += '<p style="color:#8b7355;font-size:14px;margin-bottom:16px">Las instrucciones no estan disponibles en texto.</p>';
-    }
-    if (meal.strYoutube) {
-      html += '<a href="' + escHTML(meal.strYoutube) + '" target="_blank" rel="noopener" class="yt-link">' +
-        '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.6 2.8 12 2.8 12 2.8s-4.6 0-6.8.2c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.3v2c0 2.1.3 4.3.3 4.3s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.3 21.8 12 21.8 12 21.8s4.6 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.3v-2C23.3 9.1 23 7 23 7zM9.7 15.5V8.4l8.1 3.6-8.1 3.5z"/></svg>' +
-        'Ver en YouTube' +
-        '</a>';
-    }
-    el.innerHTML = html;
-  }
-}
-
-// ── Offline ───────────────────────────────────────────────────────────────
-window.addEventListener("offline", function() { document.getElementById("offline-banner").style.display = "block"; });
-window.addEventListener("online",  function() { document.getElementById("offline-banner").style.display = "none"; });
-
-// ── Service Worker ────────────────────────────────────────────────────────
+// Service Worker
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").catch(function(){});
 }
